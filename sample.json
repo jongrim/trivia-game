@@ -1,0 +1,125 @@
+// https://opentdb.com/api.php?amount=10
+
+{
+  "response_code": 0,
+  "results": [
+    {
+      "category": "Mythology",
+      "type": "multiple",
+      "difficulty": "easy",
+      "question": "Who was the only god from Greece who did not get a name change in Rome?",
+      "correct_answer": "Apollo",
+      "incorrect_answers": [
+        "Demeter",
+        "Zeus",
+        "Athena"
+      ]
+    },
+    {
+      "category": "Entertainment: Music",
+      "type": "multiple",
+      "difficulty": "medium",
+      "question": "Saul Hudson (Slash) of the band Guns N&#039; Roses is known for playing what type of guitar?",
+      "correct_answer": "Les Paul Standard",
+      "incorrect_answers": [
+        "Fender Stratocaster",
+        "LsL Mongrel",
+        "Gretsch Falcon"
+      ]
+    },
+    {
+      "category": "Science & Nature",
+      "type": "multiple",
+      "difficulty": "medium",
+      "question": "The &quot;Tibia&quot; is found in which part of the body?",
+      "correct_answer": "Leg",
+      "incorrect_answers": [
+        "Arm",
+        "Hand",
+        "Head"
+      ]
+    },
+    {
+      "category": "Entertainment: Cartoon & Animations",
+      "type": "multiple",
+      "difficulty": "medium",
+      "question": "Which city did Anger berate for ruining pizza in &quot;Inside Out&quot;?",
+      "correct_answer": "San Francisco",
+      "incorrect_answers": [
+        "Minnesota",
+        "Washington",
+        "California"
+      ]
+    },
+    {
+      "category": "Entertainment: Music",
+      "type": "multiple",
+      "difficulty": "easy",
+      "question": "The &quot;K&quot; in &quot;K-Pop&quot; stands for which word?",
+      "correct_answer": "Korean",
+      "incorrect_answers": [
+        "Kenyan",
+        "Kazakhstan",
+        "Kuwaiti"
+      ]
+    },
+    {
+      "category": "Entertainment: Video Games",
+      "type": "multiple",
+      "difficulty": "hard",
+      "question": "What device allows Tracer to manipulate her own time in the game &quot;Overwatch&quot;?",
+      "correct_answer": "Chronal Accelerator",
+      "incorrect_answers": [
+        "B.L.I.N.K",
+        "Spacial Displacement Manipulator",
+        "TMD (Time Manipulation Device)"
+      ]
+    },
+    {
+      "category": "Entertainment: Video Games",
+      "type": "multiple",
+      "difficulty": "medium",
+      "question": "What name does the little headcrab in &quot;Half Life 2&quot; have?",
+      "correct_answer": "Lamarr",
+      "incorrect_answers": [
+        "Jumperr",
+        "Drett",
+        "Jerry"
+      ]
+    },
+    {
+      "category": "Entertainment: Board Games",
+      "type": "multiple",
+      "difficulty": "hard",
+      "question": "What do you declare in R\u012bchi Mahjong when you&#039;ve drawn your winning tile?",
+      "correct_answer": "Tsumo",
+      "incorrect_answers": [
+        "Ron",
+        "R\u012bchi",
+        "Kan"
+      ]
+    },
+    {
+      "category": "Science: Computers",
+      "type": "boolean",
+      "difficulty": "medium",
+      "question": "It&#039;s not possible to format a write-protected DVD-R Hard Disk.",
+      "correct_answer": "True",
+      "incorrect_answers": [
+        "False"
+      ]
+    },
+    {
+      "category": "Entertainment: Video Games",
+      "type": "multiple",
+      "difficulty": "medium",
+      "question": "What is the item required to summon the boss Duke Fishron in the game Terraria?",
+      "correct_answer": "Truffle Worm",
+      "incorrect_answers": [
+        "Suspicious Looking Fish",
+        "King Grasshopper",
+        "Slug"
+      ]
+    }
+  ]
+}
