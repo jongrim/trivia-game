@@ -23,10 +23,11 @@
     crossorigin="anonymous"></script>
 
   <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/app.js"></script>
 </head>
 <body>
   <div class="wrapper">
-    <div class="tile">
+    <div class="tile" id="tile">
 
       <div class="page-header full-width">
         <h1>Trivia Game</h1>
@@ -44,8 +45,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="questionCount">Select Category</label>
-          <select name="questions" id="questionCount" class="form-control">
+          <label for="categories">Select Category</label>
+          <select name="categories" id="categories" class="form-control">
             <option value="any">Any Category</option>
             <option value="9">General Knowledge</option>
             <option value="10">Entertainment: Books</option>
@@ -74,8 +75,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="questionCount">Select Difficulty</label>
-          <select name="questions" id="questionCount" class="form-control">
+          <label for="difficulty">Select Difficulty</label>
+          <select name="difficulty" id="difficulty" class="form-control">
             <option value="any">Any Difficulty</option>
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
@@ -83,8 +84,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="questionCount">Select Type</label>
-          <select name="questions" id="questionCount" class="form-control">
+          <label for="type">Select Type</label>
+          <select name="type" id="type" class="form-control">
             <option value="any">Any Type</option>
             <option value="multiple">Multiple Choice</option>
             <option value="boolean">True / False</option>
@@ -92,7 +93,7 @@
         </div>
       </form>
 
-      <button class="btn btn-primary">Start</button>
+      <button class="btn btn-primary" id="startBtn">Start</button>
 
     </div>
   </div> <!-- Container -->
