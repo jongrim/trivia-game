@@ -22,8 +22,12 @@ $(document).ready(function () {
       let api = buildRequestURL(questionCount, categories, difficulty, type);
       
       // fetch trivia questions and hold as JSON
-      let json = requestQuestions(api);
-      console.log('returned data: ', json);
+      requestQuestions(api)
+        .then(function (data) {
+          if (data["response_code"] !== 0) {
+          }
+          tile.innerHTML = createQuestionTile(data["results"][0]);
+        });
 
       // for each question:
       // make the question tile
@@ -55,20 +59,41 @@ $(document).ready(function () {
     }
 
     function requestQuestions(URL) {
-      fetch(URL)
-        .then(function (response) {
-          if (response.status !== 200) {
-            console.log('Error with status code : ' + response.status);
-          }
-          response.json()
-            .then(function (data) {
-              console.log(data);
-              return data;
-            });
-        })
-        .catch(function (err) {
-          console.log('Fetch error: ' + err);
-        });
+      return new Promise(function (resolve, reject) {
+        fetch(URL)
+          .then(function (response) {
+            if (response.status !== 200) {
+              console.log('Error with status code : ' + response.status);
+            }
+            response.json()
+              .then(function (data) {
+                resolve(data);
+              });
+          })
+          .catch(function (err) {
+            console.log('Fetch error: ' + err);
+            reject();
+          });
+      });
+    }
+
+    function createQuestionTile(question) {
+      return `
+      <div>
+        <h1>${question["question"]}</h1>
+        <div class="radio">
+          <label>
+            <input type="radio" name="optionsRadios" id="optionsRadios1" value="${question}" checked>
+            Option one is this and that&mdash;be sure to include why it's great
+          </label>
+        </div>
+      </div>
+      `
+    }
+
+    function randomizeAnswers(question) {
+      let a = [question.correct_answer, ...question.incorrect_answers];
+      // shuffle answers
     }
   })();
 })
