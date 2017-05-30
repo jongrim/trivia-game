@@ -1,33 +1,37 @@
-$(document).ready(function () {
-  
-  (function () {
+$(document).ready(function() {
+  (function() {
     //DOM elements
-    const tile = document.querySelector('#tile');
-    const startBtn = document.querySelector('#startBtn');
-    const questionCount = document.querySelector('#questionCount');
-    const categories = document.querySelector('#categories');
-    const difficulty = document.querySelector('#difficulty');
-    const type = document.querySelector('#type');
+    const tile = document.querySelector("#tile");
+    const startBtn = document.querySelector("#startBtn");
+    const questionCount = document.querySelector("#questionCount");
+    const categories = document.querySelector("#categories");
+    const difficulty = document.querySelector("#difficulty");
+    const type = document.querySelector("#type");
 
     // Event listeners
-    startBtn.addEventListener('click', () => {
+    startBtn.addEventListener("click", () => {
       runGame(
         questionCount.value,
         categories.value,
         difficulty.value,
-        type.value);
+        type.value
+      );
     });
 
     function runGame(questionCount, categories, difficulty, type) {
       let api = buildRequestURL(questionCount, categories, difficulty, type);
-      
+
       // fetch trivia questions and hold as JSON
-      requestQuestions(api)
-        .then(function (data) {
-          if (data["response_code"] !== 0) {
-          }
-          tile.innerHTML = createQuestionTile(data["results"][0]);
-        });
+      requestQuestions(api).then(function(data) {
+        if (data["response_code"] !== 0) {
+        }
+        console.log(data);
+        tile.innerHTML = data.results
+          .map(question => {
+            return createQuestionTile(question);
+          })
+          .join("");
+      });
 
       // for each question:
       // make the question tile
@@ -41,14 +45,14 @@ $(document).ready(function () {
         amount: questionCount,
         category: categories,
         difficulty: difficulty,
-        type: type,
-      }
+        type: type
+      };
 
-      let baseURL = 'https://opentdb.com/api.php?';
+      let baseURL = "https://opentdb.com/api.php?";
 
       for (var prop in config) {
         if (config.hasOwnProperty(prop)) {
-          if (config[prop] !== 'any') {
+          if (config[prop] !== "any") {
             baseURL = baseURL.concat(`${prop}=${config[prop]}&`);
           }
         }
@@ -59,36 +63,45 @@ $(document).ready(function () {
     }
 
     function requestQuestions(URL) {
-      return new Promise(function (resolve, reject) {
+      return new Promise(function(resolve, reject) {
         fetch(URL)
-          .then(function (response) {
+          .then(function(response) {
             if (response.status !== 200) {
-              console.log('Error with status code : ' + response.status);
+              console.log("Error with status code : " + response.status);
             }
-            response.json()
-              .then(function (data) {
-                resolve(data);
-              });
+            response.json().then(function(data) {
+              resolve(data);
+            });
           })
-          .catch(function (err) {
-            console.log('Fetch error: ' + err);
+          .catch(function(err) {
+            console.log("Fetch error: " + err);
             reject();
           });
       });
     }
 
     function createQuestionTile(question) {
+      let ansArray = randomizeAnswers(question);
+
+      let ansString = ansArray
+        .map(answer => {
+          return `
+        <label>
+            <input type="radio" name="optionsRadios" value="${answer}">
+            ${answer}
+        </label>
+        `;
+        })
+        .join("");
+
       return `
       <div>
         <h1>${question["question"]}</h1>
         <div class="radio">
-          <label>
-            <input type="radio" name="optionsRadios" id="optionsRadios1" value="${question}" checked>
-            Option one is this and that&mdash;be sure to include why it's great
-          </label>
+          ${ansString}
         </div>
       </div>
-      `
+      `;
     }
 
     function randomizeAnswers(question) {
@@ -109,4 +122,4 @@ $(document).ready(function () {
       }
     }
   })();
-})
+});
