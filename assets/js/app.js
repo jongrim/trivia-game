@@ -94,6 +94,19 @@ $(document).ready(function () {
     function randomizeAnswers(question) {
       let a = [question.correct_answer, ...question.incorrect_answers];
       // shuffle answers
+      return shuffle(a);
+      function shuffle(array) {
+        let n = array.length, i, t;
+
+        while (n) {
+          i = Math.floor(Math.random() * n--);
+
+          t = array[n];
+          array[n] = array[i];
+          array[i] = t;
+        }
+        return array;
+      }
     }
   })();
 })
