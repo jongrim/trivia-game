@@ -9,7 +9,6 @@ $(document).ready(function() {
     const difficulty = document.querySelector('#difficulty');
     const type = document.querySelector('#type');
     const timer = document.querySelector('#timer');
-    let submitBtn = document.createElement('btn');
 
     // Event listeners
     startBtn.addEventListener('click', () => {
@@ -17,15 +16,17 @@ $(document).ready(function() {
     });
 
     function runGame(questionCount, categories, difficulty, type) {
+      // reset styles in case of reloading
       starterTile.style.display = 'none';
       questionsTile.style.display = 'block';
-      let api = buildRequestURL(questionCount, categories, difficulty, type);
-      let time = questionCount * 5;
+
+      // declare function scope variables
+      let apiCallAddress = buildRequestURL(questionCount, categories, difficulty, type);
       let qData = {};
+      let timerHandle;
 
-      requestQuestions(api).then(function(data) {
-        let timerHandle;
-
+      // make a request for data, validate, then create and append the DOM elements
+      requestQuestions(apiCallAddress).then(function(data) {
         if (data['response_code'] !== 0) {
           questionsTile.innerHTML = 'Something went wrong with the API call. Please reload.';
         } else {
@@ -36,28 +37,40 @@ $(document).ready(function() {
             })
             .join('');
 
-          timer.style.display = 'block';
-          timer.textContent = timeConvert(time--);
-          timerHandle = setInterval(function() {
-            if (time > 0) {
-              timer.textContent = timeConvert(time--);
-            } else {
-              endGame(qData, timerHandle);
-            }
-          }, 1000);
+          startTimer(questionCount);
         }
+        createSubmitButton();
+      });
 
+      // sets the timer for the game and calls endGame() if time runs out
+      function startTimer(questionCount) {
+        let time = questionCount * 10;
+        timer.style.display = 'block';
+        timer.textContent = timeConvert(time--);
+        timerHandle = setInterval(function() {
+          if (time > 0) {
+            timer.textContent = timeConvert(time--);
+          } else {
+            endGame(qData, timerHandle);
+          }
+        }, 1000);
+      }
+
+      // creates the Submit button for the game
+      function createSubmitButton() {
+        let submitBtn = document.createElement('btn');
         submitBtn.textContent = 'Submit';
         submitBtn.addEventListener('click', function handleSubmit() {
+          submitBtn.removeEventListener('click', handleSubmit);
           endGame(qData, timerHandle, handleSubmit);
         });
         submitBtn.id = 'submit';
         submitBtn.classList.add('btn', 'btn-primary');
-
         questionsTile.appendChild(submitBtn);
-      });
+      }
     }
 
+    // creates the correct URL based on the selected options
     function buildRequestURL(questionCount, categories, difficulty, type) {
       let config = {
         amount: questionCount,
@@ -80,6 +93,7 @@ $(document).ready(function() {
       return baseURL;
     }
 
+    // creates the AJAX fetch request and returns JSON data
     function requestQuestions(URL) {
       return new Promise(function(resolve, reject) {
         fetch(URL)
@@ -98,8 +112,15 @@ $(document).ready(function() {
       });
     }
 
+    // creates a section for a question and its answers
     function createQuestionTile(question) {
-      let ansArray = randomizeAnswers(question);
+      let ansArray;
+
+      if (question.incorrect_answers.length > 1) {
+        ansArray = randomizeAnswers(question);
+      } else {
+        ansArray = ['True', 'False'];
+      }
 
       let ansString = ansArray
         .map(answer => {
@@ -126,6 +147,7 @@ $(document).ready(function() {
       `;
     }
 
+    // shuffles the answers using the Fisher-Yates algorithm
     function randomizeAnswers(question) {
       let a = [question.correct_answer, ...question.incorrect_answers];
       // shuffle answers
@@ -144,10 +166,9 @@ $(document).ready(function() {
       }
     }
 
-    function endGame(qData, timerHandle, clickFunction) {
+    // ends the game and prepares to display final info
+    function endGame(qData, timerHandle) {
       clearInterval(timerHandle);
-      submitBtn.removeEventListener('click', clickFunction);
-      timer.textContent = '00:00';
 
       let missedQuestions = [];
       let questions = qData.results;
@@ -171,13 +192,18 @@ $(document).ready(function() {
           return acc;
         }
       }, 0);
-      console.log(missedQuestions);
       finalGameScreen({ 'Number Correct': correctlyAnswered }, missedQuestions);
     }
 
     function timeConvert(time) {
-      let minutes = Math.floor(time / 60) || '00';
+      let minutes = Math.floor(time / 60);
       let seconds = time % 60;
+      if (seconds < 10) {
+        seconds = `0${seconds}`;
+      }
+      if (minutes < 10) {
+        minutes = `0${minutes}`;
+      }
       return `${minutes}:${seconds}`;
     }
 
