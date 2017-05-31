@@ -7,6 +7,8 @@ $(document).ready(function() {
     const categories = document.querySelector("#categories");
     const difficulty = document.querySelector("#difficulty");
     const type = document.querySelector("#type");
+    const timer = document.querySelector("#timer");
+    let submitBtn = document.createElement("btn");
 
     // Event listeners
     startBtn.addEventListener("click", () => {
@@ -20,24 +22,38 @@ $(document).ready(function() {
 
     function runGame(questionCount, categories, difficulty, type) {
       let api = buildRequestURL(questionCount, categories, difficulty, type);
+      let time = questionCount * 5;
+      let qData = {};
 
       // fetch trivia questions and hold as JSON
       requestQuestions(api).then(function(data) {
         if (data["response_code"] !== 0) {
         }
-        console.log(data);
+        qData = data;
         tile.innerHTML = data.results
           .map(question => {
             return createQuestionTile(question);
           })
           .join("");
-      });
 
-      // for each question:
-      // make the question tile
-      // start a timer for the question
-      // when answered or when time runs out, make a new tile
-      // when done, show final stats page
+        timer.textContent = timeConvert(time--);
+        let timerHandle = setInterval(function() {
+          if (time > 0) {
+            timer.textContent = timeConvert(time--);
+          } else {
+            endGame(qData, timerHandle);
+          }
+        }, 1000);
+
+        submitBtn.textContent = "Submit";
+        submitBtn.addEventListener("click", () => {
+          endGame(qData, timerHandle);
+        });
+        submitBtn.id = "submit";
+        submitBtn.classList.add("btn", "btn-primary");
+
+        tile.appendChild(submitBtn);
+      });
     }
 
     function buildRequestURL(questionCount, categories, difficulty, type) {
@@ -86,21 +102,25 @@ $(document).ready(function() {
       let ansString = ansArray
         .map(answer => {
           return `
-        <label>
-            <input type="radio" name="optionsRadios" value="${answer}">
-            ${answer}
-        </label>
+          <div class="answer radio">
+            <label>
+                <input type="radio" name="optionsRadios" value="${answer}">
+                ${answer}
+            </label>
+          </div>
         `;
         })
         .join("");
 
       return `
-      <div>
-        <h1>${question["question"]}</h1>
-        <div class="radio">
-          ${ansString}
+      <form>
+        <div class="question">
+          <h4>${question["question"]}</h4>
+          <div class="radio">
+            ${ansString}
+          </div>
         </div>
-      </div>
+      </form>
       `;
     }
 
@@ -120,6 +140,51 @@ $(document).ready(function() {
         }
         return array;
       }
+    }
+
+    function endGame(qData, timerHandle) {
+      clearInterval(timerHandle);
+      timer.textContent = "00:00";
+      submitBtn.classList.add("disabled");
+
+      let questions = qData.results;
+      let answers = document.querySelectorAll(":checked");
+      let correctlyAnswered = questions
+        .map(question => question.correct_answer)
+        .reduce((acc, cur, i) => {
+          if (i < answers.length) {
+            if (cur === answers[i].value) {
+              return (acc += 1);
+            } else {
+              return acc;
+            }
+          } else {
+            return acc;
+          }
+        }, 0);
+      finalGameScreen({ "Number Correct": correctlyAnswered });
+    }
+
+    function timeConvert(time) {
+      let minutes = Math.floor(time / 60) || "00";
+      let seconds = time % 60;
+      return `${minutes}:${seconds}`;
+    }
+
+    function finalGameScreen(statsObj) {
+      let header = `
+      <div class="page-header full-width">
+       <h1>Final Results</h1>
+      </div>
+      `;
+      timer.style.display = "none";
+      let gameStats = "";
+      for (var prop in statsObj) {
+        if (statsObj.hasOwnProperty(prop)) {
+          gameStats = gameStats.concat(`<p>${prop}: ${statsObj[prop]}</p>`);
+        }
+      }
+      tile.innerHTML = header.concat(gameStats);
     }
   })();
 });
