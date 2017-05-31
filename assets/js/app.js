@@ -30,23 +30,26 @@ $(document).ready(function() {
 
       requestQuestions(api).then(function(data) {
         if (data["response_code"] !== 0) {
-        }
-        qData = data;
-        questionsTile.innerHTML = data.results
-          .map(question => {
-            return createQuestionTile(question);
-          })
-          .join("");
+          questionsTile.innerHTML =
+            "Something went wrong with the API call. Please reload.";
+        } else {
+          qData = data;
+          questionsTile.innerHTML = data.results
+            .map(question => {
+              return createQuestionTile(question);
+            })
+            .join("");
 
-        timer.style.display = "block";
-        timer.textContent = timeConvert(time--);
-        let timerHandle = setInterval(function() {
-          if (time > 0) {
-            timer.textContent = timeConvert(time--);
-          } else {
-            endGame(qData, timerHandle);
-          }
-        }, 1000);
+          timer.style.display = "block";
+          timer.textContent = timeConvert(time--);
+          let timerHandle = setInterval(function() {
+            if (time > 0) {
+              timer.textContent = timeConvert(time--);
+            } else {
+              endGame(qData, timerHandle);
+            }
+          }, 1000);
+        }
 
         submitBtn.textContent = "Submit";
         submitBtn.addEventListener("click", function handleSubmit() {
