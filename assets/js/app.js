@@ -1,48 +1,44 @@
 $(document).ready(function() {
   (function() {
     //DOM elements
-    const starterTile = document.querySelector("#starterTile");
-    const questionsTile = document.querySelector("#questionsTile");
-    const startBtn = document.querySelector("#startBtn");
-    const questionCount = document.querySelector("#questionCount");
-    const categories = document.querySelector("#categories");
-    const difficulty = document.querySelector("#difficulty");
-    const type = document.querySelector("#type");
-    const timer = document.querySelector("#timer");
-    let submitBtn = document.createElement("btn");
+    const starterTile = document.querySelector('#starterTile');
+    const questionsTile = document.querySelector('#questionsTile');
+    const startBtn = document.querySelector('#startBtn');
+    const questionCount = document.querySelector('#questionCount');
+    const categories = document.querySelector('#categories');
+    const difficulty = document.querySelector('#difficulty');
+    const type = document.querySelector('#type');
+    const timer = document.querySelector('#timer');
+    let submitBtn = document.createElement('btn');
 
     // Event listeners
-    startBtn.addEventListener("click", () => {
-      runGame(
-        questionCount.value,
-        categories.value,
-        difficulty.value,
-        type.value
-      );
+    startBtn.addEventListener('click', () => {
+      runGame(questionCount.value, categories.value, difficulty.value, type.value);
     });
 
     function runGame(questionCount, categories, difficulty, type) {
-      starterTile.style.display = "none";
-      questionsTile.style.display = "block";
+      starterTile.style.display = 'none';
+      questionsTile.style.display = 'block';
       let api = buildRequestURL(questionCount, categories, difficulty, type);
       let time = questionCount * 5;
       let qData = {};
 
       requestQuestions(api).then(function(data) {
-        if (data["response_code"] !== 0) {
-          questionsTile.innerHTML =
-            "Something went wrong with the API call. Please reload.";
+        let timerHandle;
+
+        if (data['response_code'] !== 0) {
+          questionsTile.innerHTML = 'Something went wrong with the API call. Please reload.';
         } else {
           qData = data;
           questionsTile.innerHTML = data.results
             .map(question => {
               return createQuestionTile(question);
             })
-            .join("");
+            .join('');
 
-          timer.style.display = "block";
+          timer.style.display = 'block';
           timer.textContent = timeConvert(time--);
-          let timerHandle = setInterval(function() {
+          timerHandle = setInterval(function() {
             if (time > 0) {
               timer.textContent = timeConvert(time--);
             } else {
@@ -51,12 +47,12 @@ $(document).ready(function() {
           }, 1000);
         }
 
-        submitBtn.textContent = "Submit";
-        submitBtn.addEventListener("click", function handleSubmit() {
+        submitBtn.textContent = 'Submit';
+        submitBtn.addEventListener('click', function handleSubmit() {
           endGame(qData, timerHandle, handleSubmit);
         });
-        submitBtn.id = "submit";
-        submitBtn.classList.add("btn", "btn-primary");
+        submitBtn.id = 'submit';
+        submitBtn.classList.add('btn', 'btn-primary');
 
         questionsTile.appendChild(submitBtn);
       });
@@ -70,11 +66,11 @@ $(document).ready(function() {
         type: type
       };
 
-      let baseURL = "https://opentdb.com/api.php?";
+      let baseURL = 'https://opentdb.com/api.php?';
 
       for (var prop in config) {
         if (config.hasOwnProperty(prop)) {
-          if (config[prop] !== "any") {
+          if (config[prop] !== 'any') {
             baseURL = baseURL.concat(`${prop}=${config[prop]}&`);
           }
         }
@@ -89,14 +85,14 @@ $(document).ready(function() {
         fetch(URL)
           .then(function(response) {
             if (response.status !== 200) {
-              console.log("Error with status code : " + response.status);
+              console.log('Error with status code : ' + response.status);
             }
             response.json().then(function(data) {
               resolve(data);
             });
           })
           .catch(function(err) {
-            console.log("Fetch error: " + err);
+            console.log('Fetch error: ' + err);
             reject();
           });
       });
@@ -116,12 +112,12 @@ $(document).ready(function() {
           </div>
         `;
         })
-        .join("");
+        .join('');
 
       return `
       <form>
         <div class="question">
-          <h4>${question["question"]}</h4>
+          <h4>${question['question']}</h4>
           <div class="radio">
             ${ansString}
           </div>
@@ -150,12 +146,12 @@ $(document).ready(function() {
 
     function endGame(qData, timerHandle, clickFunction) {
       clearInterval(timerHandle);
-      submitBtn.removeEventListener("click", clickFunction);
-      timer.textContent = "00:00";
+      submitBtn.removeEventListener('click', clickFunction);
+      timer.textContent = '00:00';
 
       let missedQuestions = [];
       let questions = qData.results;
-      let answers = document.querySelectorAll("input:checked");
+      let answers = document.querySelectorAll('input:checked');
       let correctlyAnswered = questions.reduce((acc, cur, i) => {
         if (i < answers.length) {
           if (cur.correct_answer === answers[i].value) {
@@ -176,11 +172,11 @@ $(document).ready(function() {
         }
       }, 0);
       console.log(missedQuestions);
-      finalGameScreen({ "Number Correct": correctlyAnswered }, missedQuestions);
+      finalGameScreen({ 'Number Correct': correctlyAnswered }, missedQuestions);
     }
 
     function timeConvert(time) {
-      let minutes = Math.floor(time / 60) || "00";
+      let minutes = Math.floor(time / 60) || '00';
       let seconds = time % 60;
       return `${minutes}:${seconds}`;
     }
@@ -191,31 +187,41 @@ $(document).ready(function() {
        <h1>Final Results</h1>
       </div>
       `;
-      timer.style.display = "none";
-      let gameStats = "";
+      timer.style.display = 'none';
+      let gameStats = '';
       for (var prop in statsObj) {
         if (statsObj.hasOwnProperty(prop)) {
-          gameStats = gameStats.concat(`<p>${prop}: ${statsObj[prop]}</p>`);
+          gameStats = gameStats.concat(`<h3>${prop}: ${statsObj[prop]}</h3>`);
         }
       }
       questionsTile.innerHTML = header.concat(gameStats);
-      debugger;
       missedQuestions.forEach(question => {
-        let el = document.createElement("p");
-        el.textContent = `${question.question}: ${question.correct_answer}`;
-        questionsTile.appendChild(el);
+        let c = document.createElement('div');
+        let q = document.createElement('div');
+        let a = document.createElement('p');
+
+        c.classList.add('thumbnail');
+        q.classList.add('well');
+
+        q.innerHTML = `${question.question}`;
+        a.innerHTML = `Correct answer: <span class="text-danger">${question.correct_answer}</span>`;
+
+        c.appendChild(q);
+        c.appendChild(a);
+
+        questionsTile.appendChild(c);
       });
 
-      let replayBtn = document.createElement("btn");
-      replayBtn.classList.add("btn", "btn-primary");
-      replayBtn.textContent = "Play Again";
+      let replayBtn = document.createElement('btn');
+      replayBtn.classList.add('btn', 'btn-primary');
+      replayBtn.textContent = 'Play Again';
       questionsTile.appendChild(replayBtn);
-      replayBtn.addEventListener("click", resetGame);
+      replayBtn.addEventListener('click', resetGame);
     }
 
     function resetGame() {
-      questionsTile.style.display = "none";
-      starterTile.style.display = "block";
+      questionsTile.style.display = 'none';
+      starterTile.style.display = 'block';
     }
   })();
 });
