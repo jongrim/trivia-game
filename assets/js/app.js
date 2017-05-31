@@ -1,7 +1,8 @@
 $(document).ready(function() {
   (function() {
     //DOM elements
-    const tile = document.querySelector("#tile");
+    const starterTile = document.querySelector("#starterTile");
+    const questionsTile = document.querySelector("#questionsTile");
     const startBtn = document.querySelector("#startBtn");
     const questionCount = document.querySelector("#questionCount");
     const categories = document.querySelector("#categories");
@@ -21,21 +22,23 @@ $(document).ready(function() {
     });
 
     function runGame(questionCount, categories, difficulty, type) {
+      starterTile.style.display = "none";
+      questionsTile.style.display = "block";
       let api = buildRequestURL(questionCount, categories, difficulty, type);
       let time = questionCount * 5;
       let qData = {};
 
-      // fetch trivia questions and hold as JSON
       requestQuestions(api).then(function(data) {
         if (data["response_code"] !== 0) {
         }
         qData = data;
-        tile.innerHTML = data.results
+        questionsTile.innerHTML = data.results
           .map(question => {
             return createQuestionTile(question);
           })
           .join("");
 
+        timer.style.display = "block";
         timer.textContent = timeConvert(time--);
         let timerHandle = setInterval(function() {
           if (time > 0) {
@@ -46,13 +49,13 @@ $(document).ready(function() {
         }, 1000);
 
         submitBtn.textContent = "Submit";
-        submitBtn.addEventListener("click", () => {
-          endGame(qData, timerHandle);
+        submitBtn.addEventListener("click", function handleSubmit() {
+          endGame(qData, timerHandle, handleSubmit);
         });
         submitBtn.id = "submit";
         submitBtn.classList.add("btn", "btn-primary");
 
-        tile.appendChild(submitBtn);
+        questionsTile.appendChild(submitBtn);
       });
     }
 
@@ -142,27 +145,35 @@ $(document).ready(function() {
       }
     }
 
-    function endGame(qData, timerHandle) {
+    function endGame(qData, timerHandle, clickFunction) {
       clearInterval(timerHandle);
+      submitBtn.removeEventListener("click", clickFunction);
       timer.textContent = "00:00";
-      submitBtn.classList.add("disabled");
 
+      let missedQuestions = [];
       let questions = qData.results;
-      let answers = document.querySelectorAll(":checked");
-      let correctlyAnswered = questions
-        .map(question => question.correct_answer)
-        .reduce((acc, cur, i) => {
-          if (i < answers.length) {
-            if (cur === answers[i].value) {
-              return (acc += 1);
-            } else {
-              return acc;
-            }
+      let answers = document.querySelectorAll("input:checked");
+      let correctlyAnswered = questions.reduce((acc, cur, i) => {
+        if (i < answers.length) {
+          if (cur.correct_answer === answers[i].value) {
+            return (acc += 1);
           } else {
+            missedQuestions.push({
+              question: cur.question,
+              correct_answer: cur.correct_answer
+            });
             return acc;
           }
-        }, 0);
-      finalGameScreen({ "Number Correct": correctlyAnswered });
+        } else {
+          missedQuestions.push({
+            question: cur.question,
+            correct_answer: cur.correct_answer
+          });
+          return acc;
+        }
+      }, 0);
+      console.log(missedQuestions);
+      finalGameScreen({ "Number Correct": correctlyAnswered }, missedQuestions);
     }
 
     function timeConvert(time) {
@@ -171,7 +182,7 @@ $(document).ready(function() {
       return `${minutes}:${seconds}`;
     }
 
-    function finalGameScreen(statsObj) {
+    function finalGameScreen(statsObj, missedQuestions) {
       let header = `
       <div class="page-header full-width">
        <h1>Final Results</h1>
@@ -184,7 +195,24 @@ $(document).ready(function() {
           gameStats = gameStats.concat(`<p>${prop}: ${statsObj[prop]}</p>`);
         }
       }
-      tile.innerHTML = header.concat(gameStats);
+      questionsTile.innerHTML = header.concat(gameStats);
+      debugger;
+      missedQuestions.forEach(question => {
+        let el = document.createElement("p");
+        el.textContent = `${question.question}: ${question.correct_answer}`;
+        questionsTile.appendChild(el);
+      });
+
+      let replayBtn = document.createElement("btn");
+      replayBtn.classList.add("btn", "btn-primary");
+      replayBtn.textContent = "Play Again";
+      questionsTile.appendChild(replayBtn);
+      replayBtn.addEventListener("click", resetGame);
+    }
+
+    function resetGame() {
+      questionsTile.style.display = "none";
+      starterTile.style.display = "block";
     }
   })();
 });
