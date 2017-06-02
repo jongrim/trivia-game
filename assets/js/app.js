@@ -1,5 +1,5 @@
 var TriviaGame = (function GameMaker() {
-  let starterTile, questionsTile, startBtn, questionCount, categories, difficulty, type, timer;
+  let starterTile, questionsTile, startBtn, questionCount, categories, difficulty, type, timer, spinner;
 
   function init(opts) {
     //DOM elements
@@ -11,6 +11,7 @@ var TriviaGame = (function GameMaker() {
     difficulty = document.querySelector(opts.difficulty);
     type = document.querySelector(opts.qType);
     timer = document.querySelector(opts.timer);
+    spinner = document.querySelector(opts.spinner);
 
     initialListeners();
   }
@@ -25,7 +26,8 @@ var TriviaGame = (function GameMaker() {
   function runGame(questionCount, categories, difficulty, type) {
     // reset styles in case of reloading
     starterTile.style.display = 'none';
-    questionsTile.style.display = 'block';
+
+    toggleSpinner();
 
     // declare function scope variables
     let apiCallAddress = buildRequestURL(questionCount, categories, difficulty, type);
@@ -38,12 +40,14 @@ var TriviaGame = (function GameMaker() {
         questionsTile.innerHTML = 'Something went wrong with the API call. Please reload.';
       } else {
         qData = data;
+        toggleSpinner();
         questionsTile.innerHTML = data.results
           .map(question => {
             return createQuestionTile(question);
           })
           .join('');
 
+        questionsTile.style.display = 'block';
         startTimer(questionCount);
       }
       createSubmitButton();
@@ -74,6 +78,14 @@ var TriviaGame = (function GameMaker() {
       submitBtn.id = 'submit';
       submitBtn.classList.add('btn', 'btn-primary');
       questionsTile.appendChild(submitBtn);
+    }
+  }
+
+  function toggleSpinner() {
+    if (!spinner.classList.contains('spinner')) {
+      spinner.classList.add('spinner');
+    } else {
+      spinner.classList.remove('spinner');
     }
   }
 
@@ -272,6 +284,7 @@ $(document).ready(function() {
     categories: '#categories',
     difficulty: '#difficulty',
     qType: '#questionType',
-    timer: '#timer'
+    timer: '#timer',
+    spinner: '#spinner'
   });
 });
