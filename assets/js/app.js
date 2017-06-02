@@ -37,7 +37,10 @@ var TriviaGame = (function GameMaker() {
     // make a request for data, validate, then create and append the DOM elements
     requestQuestions(apiCallAddress).then(function(data) {
       if (data['response_code'] !== 0) {
-        questionsTile.innerHTML = 'Something went wrong with the API call. Please reload.';
+        toggleSpinner();
+        questionsTile.style.display = 'block';
+        questionsTile.innerHTML =
+          '<h3>Something went wrong with the API call. Please refresh the page and try again.</h3>';
       } else {
         qData = data;
         toggleSpinner();
@@ -49,8 +52,8 @@ var TriviaGame = (function GameMaker() {
 
         questionsTile.style.display = 'block';
         startTimer(questionCount);
+        createSubmitButton();
       }
-      createSubmitButton();
     });
 
     // sets the timer for the game and calls endGame() if time runs out
